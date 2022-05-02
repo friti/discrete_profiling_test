@@ -19,17 +19,17 @@ void examplews(){
 
   // ---------------------------- CONTROL REGION 1 -------------------------------------------------------------------//
   TH1F data_th1("data_obs_CR1","Data observed in signal region",nbins,xbins);
-  data_th1.SetBinContent(1,100);
-  data_th1.SetBinContent(2,50);
-  data_th1.SetBinContent(3,25);
-  data_th1.SetBinContent(4,10);
+  data_th1.SetBinContent(1,95);
+  data_th1.SetBinContent(2,55);
+  data_th1.SetBinContent(3,30);
+  data_th1.SetBinContent(4,5);
   RooDataHist data_hist("data_obs_CR1","Data observed",vars,&data_th1);
   wspace.import(data_hist);
 
-  RooRealVar bin1_CR1("bkg_CR1_bin1","Background yield in signal region, bin 1",100,0,500);
-  RooRealVar bin2_CR1("bkg_CR1_bin2","Background yield in signal region, bin 2",50,0,500);
-  RooRealVar bin3_CR1("bkg_CR1_bin3","Background yield in signal region, bin 3",25,0,500);
-  RooRealVar bin4_CR1("bkg_CR1_bin4","Background yield in signal region, bin 4",10,0,500);
+  RooRealVar bin1_CR1("bkg_CR1_bin1","Background yield in signal region, bin 1",95,0,500);
+  RooRealVar bin2_CR1("bkg_CR1_bin2","Background yield in signal region, bin 2",55,0,500);
+  RooRealVar bin3_CR1("bkg_CR1_bin3","Background yield in signal region, bin 3",30,0,500);
+  RooRealVar bin4_CR1("bkg_CR1_bin4","Background yield in signal region, bin 4",5,0,500);
   RooArgList bkg_CR1_bins;
   bkg_CR1_bins.add(bin1_CR1);
   bkg_CR1_bins.add(bin2_CR1);
@@ -41,10 +41,10 @@ void examplews(){
 
   // ---------------------------- CONTROL REGION 2 -------------------------------------------------------------------//
   TH1F data_th1_2("data_obs_CR2","Data observed in signal region",nbins,xbins);
-  data_th1_2.SetBinContent(1,100);
-  data_th1_2.SetBinContent(2,50);
-  data_th1_2.SetBinContent(3,25);
-  data_th1_2.SetBinContent(4,10);
+  data_th1_2.SetBinContent(1,99);
+  data_th1_2.SetBinContent(2,51);
+  data_th1_2.SetBinContent(3,26);
+  data_th1_2.SetBinContent(4,9);
   RooDataHist data_hist_CR2("data_obs_CR2","Data observed",vars,&data_th1_2);
   wspace.import(data_hist_CR2);
 
@@ -88,7 +88,6 @@ void examplews(){
   bkg_SR_bins.add(SRbin4);
   RooParametricHist p_SRbkg("bkg_SR", "Background PDF in control region",met,bkg_SR_bins,data_th1);
   RooAddition p_SRbkg_norm("bkg_SR_norm","Total Number of events from background in control region",bkg_SR_bins);
-  ///RooExtendPdf p_SRbkg_extend("bkg_SR_extended", "Background PDF in control region",p_SRbkg,p_SRbkg_norm);
 
   // Second RooParametricHisto from Control Region 2
   RooFormulaVar SR2bin1("bkg_SR2_bin1","Background yield in control region, bin 1","@0*@1",RooArgList(TF,bin1_CR2));
@@ -103,7 +102,6 @@ void examplews(){
   bkg_SR2_bins.add(SR2bin4);
   RooParametricHist p_SR2bkg("bkg_SR2", "Background PDF in control region",met,bkg_SR2_bins,data_th1);
   RooAddition p_SR2bkg_norm("bkg_SR2_norm","Total Number of events from background in control region",bkg_SR2_bins);
-  //RooExtendPdf p_SR2bkg_extend("bkg_SR2_extended", "Background PDF in control region",p_SR2bkg,p_SR2bkg_norm);
 
   // SIGNAL of the signal region
   TH1F signal_th1("signal_SR2","Signal expected in signal region",nbins,xbins);
@@ -123,15 +121,7 @@ void examplews(){
   mypdfs.add(p_SRbkg);
   mypdfs.add(p_SR2bkg);
   RooMultiPdf multipdf("roomultipdf","RooMultiPdf in the signal region", cat, mypdfs);
-  RooAddition norm("roomultipdf_norm","Number of background events",bkg_SR2_bins);
-  //RooRealVar norm("roomultipdf_norm","Number of background events",1000,0,10000);
-
-  /*RooArgList mypdfs;
-  mypdfs.add(p_SRbkg_extend);
-  mypdfs.add(p_SR2bkg_extend);
-  RooMultiPdf multipdf("roomultipdf","RooMultiPdf in the signal region", cat, mypdfs);
-  RooAddition norm("roomultipdf_norm","Number of background events",bkg_SR2_bins);
-  //RooAddition norm("roomultipdf_norm","Number of background events",multipdf.expectedEevents());*/
+  RooFormulaVar norm("roomultipdf_norm","Number of background events","(1-@0)*@1 + @0*@2",RooArgList(cat, p_SRbkg_norm, p_SR2bkg_norm));
 
   // import the pdfs
   wspace.import(cat);
@@ -141,10 +131,6 @@ void examplews(){
   wspace.import(p_bkg_norm,RooFit::RecycleConflictNodes());
   wspace.import(p_bkg_CR2);
   wspace.import(p_bkg_CR2_norm,RooFit::RecycleConflictNodes());
-  //wspace.import(p_SRbkg);
-  //wspace.import(p_SRbkg_norm,RooFit::RecycleConflictNodes());
-  //wspace.import(p_SR2bkg);
-  //wspace.import(p_SR2bkg_norm,RooFit::RecycleConflictNodes());
   fOut->cd();
   wspace.Write();
   
